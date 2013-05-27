@@ -3,4 +3,5 @@
 .jaxl
 .pydevproject
 .settings/
+.idea
 docs/_build

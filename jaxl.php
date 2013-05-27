@@ -391,6 +391,12 @@ class JAXL extends XMPPStream {
 			// parse opts
 			if(@$opts['--with-debug-shell']) $this->enable_debug_shell();
 			if(@$opts['--with-unix-sock']) $this->enable_unix_sock();
+
+      $jaxl = $this;
+
+      JAXLLoop::setOnTickCallback(function() use ($jaxl) {
+        $jaxl->handle_tick();
+      });
 			
 			// run main loop
 			JAXLLoop::run();
@@ -419,6 +425,11 @@ class JAXL extends XMPPStream {
 	//
 	// callback methods
 	//
+
+  public function handle_tick()
+  {
+    $this->ev->emit('on_tick');
+  }
 	
 	// signals callback handler
 	// not for public api consumption

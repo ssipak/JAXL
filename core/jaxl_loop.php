@@ -60,7 +60,9 @@ class JAXLLoop {
 	
 	private static $secs = 0;
 	private static $usecs = 30000;
-	
+
+  private static $on_tick_callback = null;
+
 	private function __construct() {}
 	private function __clone() {}
 	
@@ -103,14 +105,28 @@ class JAXLLoop {
 		
 		_debug("active read fds: ".self::$active_read_fds.", write fds: ".self::$active_write_fds);
 	}
-	
-	public static function run() {
+
+  public static function setOnTickCallback($callable)
+  {
+    self::$on_tick_callback = $callable;
+  }
+
+  /**
+   * @param JAXL $jaxl
+   */
+  public static function run() {
 		if(!self::$is_running) {
 			self::$is_running = true;
 			self::$clock = new JAXLClock();
 			
 			while((self::$active_read_fds + self::$active_write_fds) > 0)
+      {
 				self::select();
+        if (is_callable(self::$on_tick_callback))
+        {
+          call_user_func(self::$on_tick_callback);
+        }
+      }
 			
 			_debug("no more active fd's to select");
 			self::$is_running = false;
